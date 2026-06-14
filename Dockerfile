@@ -13,11 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 安装 uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# 复制依赖配置
+# 复制依赖配置（利用 Docker 层缓存加速构建）
 COPY pyproject.toml uv.lock* ./
 
 # 安装生产依赖
-RUN uv sync --no-dev --frozen
+RUN uv sync --no-dev
+
+# 复制项目代码
+COPY . .
 
 # 复制项目代码
 COPY . .

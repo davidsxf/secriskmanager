@@ -20,7 +20,6 @@ data/
 .env
 .venv/
 .python-version
-uv.lock
 
 # Backups (use volume)
 backups/
