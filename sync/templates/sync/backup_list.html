@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}数据库备份恢复{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">数据库备份恢复</h1>
+        <p class="mt-1 text-sm text-gray-500">当前数据库大小: {{ db_size_mb }} MB</p>
+    </div>
+    <form method="post" action="{% url 'sync:backup_create' %}">
+        {% csrf_token %}
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">立即备份</button>
+    </form>
+</div>
+
+{% if backups %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">文件名</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">大小</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">创建时间</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for b in backups %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ b.filename }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ b.size_mb|floatformat:1 }} MB</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ b.mtime|date:"Y-m-d H:i:s" }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <a href="{% url 'sync:backup_download' b.filename %}" class="text-blue-600 hover:text-blue-900">下载</a>
+                    <form method="post" action="{% url 'sync:backup_restore' b.filename %}" class="inline" onsubmit="return confirm('恢复将覆盖当前数据库，确定继续？')">
+                        {% csrf_token %}
+                        <button type="submit" class="text-yellow-600 hover:text-yellow-900">恢复</button>
+                    </form>
+                    <form method="post" action="{% url 'sync:backup_delete' b.filename %}" class="inline" onsubmit="return confirm('确定删除此备份？')">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-600 hover:text-red-900">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="mt-4 text-sm text-gray-400">恢复数据库后需重启应用使新数据库生效。</p>
+{% else %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+    <p class="text-gray-500 text-lg">暂无备份</p>
+    <p class="text-sm text-gray-400 mt-2">建议在重要操作前创建备份</p>
+</div>
+{% endif %}
+{% endblock %}

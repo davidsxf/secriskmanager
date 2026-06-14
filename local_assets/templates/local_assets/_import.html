@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}导入资产文件{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">导入资产文件</h1>
+    <p class="mt-1 text-sm text-gray-500">上传 ipmacdesc.conf 格式文件，自动导入资产</p>
+</div>
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 px-8 py-6 max-w-3xl mx-auto">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <div class="mt-1">{{ field }}</div>
+            {% if field.errors %}<p class="mt-2 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'local_assets:list' %}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50">返回</a>
+            <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">上传并导入</button>
+        </div>
+    </form>
+</div>
+<div class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 px-8 py-6 max-w-3xl mx-auto">
+    <h3 class="text-sm font-medium text-gray-900 mb-2">文件格式说明</h3>
+    <code class="block bg-gray-50 p-3 rounded text-xs whitespace-pre">IP MAC 0 NULL 姓名/描述
+172.21.29.25 0 NULL 综合楼无线
+172.21.4.233 0 NULL 张展路由器</code>
+    <p class="mt-2 text-sm text-gray-500">MAC 为 0 时表示无 MAC 信息。已有 IP 会自动更新。</p>
+</div>
+{% endblock %}

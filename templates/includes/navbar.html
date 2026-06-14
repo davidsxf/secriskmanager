@@ -1,0 +1,32 @@
+<nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center space-x-8">
+                <a href="{% url 'dashboard:index' %}" class="text-lg font-bold text-blue-600">
+                    SecRiskManager
+                </a>
+                <div class="hidden md:flex space-x-4">
+                    <a href="{% url 'risk_ip:list' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">IP 风险</a>
+                    <a href="{% url 'risk_domain:list' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">域名风险</a>
+                    <a href="{% url 'local_assets:list' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">本地资产</a>
+                    <a href="{% url 'import_export_center' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">导入导出</a>
+                    <a href="{% url 'risk_ip:diff' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">镜像比对</a>
+                    <a href="{% url 'accounts:allowed_ip_list' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">IP 白名单</a>
+                    <a href="{% url 'sync:list' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">情报源</a>
+                    <a href="{% url 'sync:backup_list' %}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-50">备份</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                <span class="text-sm text-gray-500">{{ user.username }}</span>
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-sm font-medium text-gray-700 hover:text-red-600">退出</button>
+                </form>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">登录</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

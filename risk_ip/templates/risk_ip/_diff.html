@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}设备镜像比对{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">设备镜像比对（IP）</h1>
+    <p class="mt-1 text-sm text-gray-500">上传安全设备导出的 IP 组文件，比对系统风险库，自动生成差异清单</p>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 px-8 py-6 max-w-3xl mx-auto mb-8">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <div class="mt-1">{{ field }}</div>
+            {% if field.errors %}<p class="mt-2 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+            <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+        </div>
+        {% endfor %}
+        <div class="flex justify-end">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">上传并比对</button>
+        </div>
+    </form>
+</div>
+
+{% if stats %}
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+        <p class="text-2xl font-bold text-blue-600">{{ stats.total_device }}</p>
+        <p class="text-sm text-gray-500">设备条目数</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+        <p class="text-2xl font-bold text-green-600">{{ stats.matched }}</p>
+        <p class="text-sm text-gray-500">两边都有</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+        <p class="text-2xl font-bold text-yellow-600">{{ stats.diff_a_count }}</p>
+        <p class="text-sm text-gray-500">差异 A（设备有·系统无）</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+        <p class="text-2xl font-bold text-red-600">{{ stats.diff_b_count }}</p>
+        <p class="text-sm text-gray-500">差异 B（系统有·设备无）</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {% if diff_a %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-yellow-700">差异 A：设备有 · 系统无</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{{ diff_a|length }} 条</span>
+        </div>
+        <div class="bg-gray-50 rounded p-3 max-h-60 overflow-y-auto mb-4 text-xs font-mono">{% for item in diff_a %}{{ item }}
+{% empty %}无差异{% endfor %}</div>
+        <form method="post" action="{% url 'risk_ip:diff_import_a' %}" class="space-y-3">
+            {% csrf_token %}
+            <div class="flex items-end gap-3">
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">来源</label>
+                    <select name="source" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        {% for s in source_choices %}
+                        <option value="{{ s.slug }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-yellow-600 hover:bg-yellow-700">导入到系统</button>
+            </div>
+            {% if tag_choices %}
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">标签（可选）</label>
+                <div class="flex flex-wrap gap-2">
+                    {% for t in tag_choices %}
+                    <label class="inline-flex items-center gap-1 text-xs cursor-pointer">
+                        <input type="checkbox" name="tags" value="{{ t.pk }}" class="rounded border-gray-300 text-blue-600">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white" style="background-color: {{ t.color }};">{{ t.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+    {% endif %}
+
+    {% if diff_b %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-red-700">差异 B：系统有 · 设备无</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">{{ diff_b|length }} 条</span>
+        </div>
+        <div class="bg-gray-50 rounded p-3 max-h-60 overflow-y-auto mb-4 text-xs font-mono">{% for item in diff_b %}{{ item }}
+{% empty %}无差异{% endfor %}</div>
+        <form method="post" action="{% url 'risk_ip:diff_export_b' %}">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700">导出 .conf 供设备导入</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

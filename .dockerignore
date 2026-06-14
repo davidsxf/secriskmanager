@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Django
+db.sqlite3
+staticfiles/
+data/
+
+# Tailwind CLI (platform-specific, rebuilt in container)
+.django_tailwind_cli/
+
+# Development
+.env
+.venv/
+.python-version
+uv.lock
+
+# Backups (use volume)
+backups/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

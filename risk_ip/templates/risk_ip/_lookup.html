@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}IP 归属查询{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">IP 归属查询</h1>
+    <p class="mt-1 text-sm text-gray-500">查询一个 IP 是否在风险库中及其详情</p>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 px-8 py-6 max-w-3xl mx-auto mb-8">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <div class="mt-1">{{ field }}</div>
+            {% if field.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ field.errors.0 }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="flex justify-end">
+            <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">查询</button>
+        </div>
+    </form>
+</div>
+
+{% if results is not None %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mx-auto max-w-5xl">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-sm font-medium text-gray-900">查询结果：<span class="font-mono">{{ query }}</span></h3>
+    </div>
+    {% if results %}
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP/CIDR/范围</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">来源</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">分类</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">置信度</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for ip in results %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm font-mono">
+                    {% if ip.ip_address %}{{ ip.ip_address }}{% elif ip.cidr %}{{ ip.cidr }}{% elif ip.range_start and ip.range_end %}{{ ip.range_start }}-{{ ip.range_end }}{% endif %}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ ip.source }}</td>
+                <td class="px-6 py-4">
+                    {% if ip.category %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ ip.category }}</span>
+                    {% else %}-{% endif %}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ ip.confidence }}</td>
+                <td class="px-6 py-4">
+                    {% if ip.is_active %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">活跃</span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">停用</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="p-6 text-center text-gray-500">未匹配到风险记录</div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

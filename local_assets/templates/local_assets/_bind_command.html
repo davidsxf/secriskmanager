@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}生成绑定命令{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">生成 IP-MAC 绑定命令</h1>
+    <p class="mt-1 text-sm text-gray-500">选中资产后生成 user-bind static 命令，可直接粘贴到安全设备 CLI</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">1. 从资产列表勾选</h3>
+        <form method="get" class="mb-4">
+            <input type="text" name="q" value="{{ q|default:'' }}" placeholder="搜索 IP/MAC/姓名..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+        </form>
+        <div class="max-h-96 overflow-y-auto">
+            {% for a in asset_list %}
+            <label class="flex items-center py-1 hover:bg-gray-50 px-2 rounded cursor-pointer">
+                <input type="checkbox" name="asset_ids" value="{{ a.pk }}" class="rounded border-gray-300 text-blue-600 mr-3 asset-cb">
+                <span class="text-sm"><span class="font-mono">{{ a.ip_address }}</span> - {{ a.person_name|default:a.hostname|default:"-" }}</span>
+            </label>
+            {% empty %}
+            <p class="text-sm text-gray-400">暂无资产</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">2. 生成命令</h3>
+        <form method="post" action="{% url 'local_assets:bind_command' %}" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="selected_ids" id="selected_ids">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">VLAN ID</label>
+                <input type="number" name="vlan" value="1" min="1" max="4094" class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+            </div>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700" onclick="document.getElementById('selected_ids').value=[...document.querySelectorAll('.asset-cb:checked')].map(cb=>cb.value).join(',')">生成命令</button>
+        </form>
+
+        {% if commands %}
+        <div class="mt-6">
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="text-sm font-medium text-gray-900">生成的命令（{{ commands|length }} 条）</h4>
+                <button onclick="navigator.clipboard.writeText(cmdText.textContent)" class="text-xs text-blue-600 hover:text-blue-800">复制到剪贴板</button>
+            </div>
+            <pre id="cmdText" class="bg-gray-900 text-green-400 rounded p-4 text-xs overflow-x-auto max-h-96">{% for c in commands %}{{ c }}
+{% endfor %}</pre>
+            <a href="data:text/plain;charset=utf-8,{% for c in commands %}{{ c|urlencode }}{% endfor %}" download="bind_commands.txt" class="mt-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50">下载 .txt</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

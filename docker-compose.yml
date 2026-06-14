@@ -1,0 +1,31 @@
+# SecRiskManager - Docker Compose 配置
+# 单容器部署，SQLite 数据库，数据持久化在卷中
+
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: secriskmanager
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=secriskmanager.settings.prod
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-change-this-in-production}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-*}
+    volumes:
+      - data:/app/data          # SQLite 数据库
+      - backups:/app/backups    # 数据库备份
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/accounts/login/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  data:
+    name: secriskmanager_data
+  backups:
+    name: secriskmanager_backups

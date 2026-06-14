@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}导入域名文件{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">导入域名文件</h1>
+    <p class="mt-1 text-sm text-gray-500">上传 .txt 格式域名组文件，自动解析并导入系统</p>
+</div>
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 px-8 py-6 max-w-3xl mx-auto">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <div class="mt-1">{{ field }}</div>
+            {% if field.errors %}<p class="mt-2 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+            <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+        </div>
+        {% endfor %}
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'risk_domain:list' %}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50">返回</a>
+            <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">上传并导入</button>
+        </div>
+    </form>
+</div>
+<div class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 px-8 py-6 max-w-3xl mx-auto">
+    <h3 class="text-sm font-medium text-gray-900 mb-2">文件格式说明</h3>
+    <div class="text-sm text-gray-500 space-y-1">
+        <p>每行一个域名，支持以下格式：</p>
+        <code class="block bg-gray-50 p-2 rounded mt-2 text-xs">deepseek.net<br>@github.com</code>
+        <p class="mt-2"><code>@</code> 前缀表示匹配子域名。空行和 # 开头的注释行自动跳过。</p>
+    </div>
+</div>
+{% endblock %}

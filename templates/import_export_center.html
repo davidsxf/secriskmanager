@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}文件导入导出中心{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">文件导入导出中心</h1>
+    <p class="mt-1 text-sm text-gray-500">统一入口：导入导出各类型数据</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- IP 风险 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">IP 风险库</h3>
+        </div>
+        <div class="p-6 space-y-3">
+            <a href="{% url 'risk_ip:import' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">导入 IP 文件</p>
+                    <p class="text-xs text-gray-500">从 .conf 文件导入恶意 IP</p>
+                </div>
+                <span class="text-blue-600">→</span>
+            </a>
+            <a href="{% url 'risk_ip:export' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">导出 IP 组</p>
+                    <p class="text-xs text-gray-500">导出为安全设备兼容 .conf 格式</p>
+                </div>
+                <span class="text-blue-600">→</span>
+            </a>
+            <a href="{% url 'risk_ip:diff' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-yellow-50 hover:border-yellow-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">设备镜像比对</p>
+                    <p class="text-xs text-gray-500">上传设备文件比对差异</p>
+                </div>
+                <span class="text-yellow-600">→</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 域名风险 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">域名风险库</h3>
+        </div>
+        <div class="p-6 space-y-3">
+            <a href="{% url 'risk_domain:import' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">导入域名文件</p>
+                    <p class="text-xs text-gray-500">从 .txt 文件导入恶意域名</p>
+                </div>
+                <span class="text-blue-600">→</span>
+            </a>
+            <a href="{% url 'risk_domain:export' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">导出域名组</p>
+                    <p class="text-xs text-gray-500">导出为安全设备兼容 .txt 格式</p>
+                </div>
+                <span class="text-blue-600">→</span>
+            </a>
+            <a href="{% url 'risk_domain:diff' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-yellow-50 hover:border-yellow-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">设备镜像比对</p>
+                    <p class="text-xs text-gray-500">上传设备文件比对差异</p>
+                </div>
+                <span class="text-yellow-600">→</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 本地资产 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-medium text-gray-900">本地资产</h3>
+        </div>
+        <div class="p-6 space-y-3">
+            <a href="{% url 'local_assets:import' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">导入资产文件</p>
+                    <p class="text-xs text-gray-500">从 ipmacdesc.conf 导入</p>
+                </div>
+                <span class="text-blue-600">→</span>
+            </a>
+            <a href="{% url 'local_assets:export' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">导出资产</p>
+                    <p class="text-xs text-gray-500">导出为 ipmacdesc.conf 格式</p>
+                </div>
+                <span class="text-blue-600">→</span>
+            </a>
+            <a href="{% url 'local_assets:bind_command' %}" class="flex items-center justify-between px-4 py-3 rounded-md border border-gray-200 hover:bg-green-50 hover:border-green-300 transition-colors">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">生成绑定命令</p>
+                    <p class="text-xs text-gray-500">生成 IP-MAC 绑定命令脚本</p>
+                </div>
+                <span class="text-green-600">→</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

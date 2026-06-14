@@ -1,0 +1,21 @@
+[project]
+name = "secriskmanager"
+version = "0.1.0"
+description = "安全风险 IP/域名 管理系统"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=4.2,<5.0",
+    "django-tailwind-cli>=4.6,<5.0",
+    "requests>=2.31.0",
+    "python-dateutil>=2.8",
+    "gunicorn>=21.2",
+    "whitenoise>=6.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "django-extensions>=3.2",
+    "django-debug-toolbar>=4.0",
+    "ipython>=8.0",
+]

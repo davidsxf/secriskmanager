@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}仪表盘{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">仪表盘</h1>
+    <p class="mt-1 text-sm text-gray-500">安全风险 IP/域名 管理系统概览</p>
+</div>
+
+<!-- 统计卡片 -->
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <p class="text-sm font-medium text-gray-500 uppercase">风险 IP</p>
+        <p class="mt-2 text-3xl font-bold text-blue-600">{{ ip_total }}</p>
+        <p class="mt-1 text-sm text-gray-400">{{ ip_active }} 活跃</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <p class="text-sm font-medium text-gray-500 uppercase">风险域名</p>
+        <p class="mt-2 text-3xl font-bold text-blue-600">{{ domain_total }}</p>
+        <p class="mt-1 text-sm text-gray-400">{{ domain_active }} 活跃</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <p class="text-sm font-medium text-gray-500 uppercase">本地资产</p>
+        <p class="mt-2 text-3xl font-bold text-blue-600">{{ asset_total }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <p class="text-sm font-medium text-gray-500 uppercase">快速入口</p>
+        <div class="mt-2 space-y-1">
+            <a href="{% url 'import_export_center' %}" class="block text-sm text-blue-600 hover:text-blue-800">导入导出中心 →</a>
+            <a href="{% url 'risk_ip:diff' %}" class="block text-sm text-blue-600 hover:text-blue-800">设备镜像比对 →</a>
+            <a href="{% url 'local_assets:bind_command' %}" class="block text-sm text-blue-600 hover:text-blue-800">生成绑定命令 →</a>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- IP 分类分布 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">IP 分类分布</h3>
+        {% if ip_categories %}
+        <div class="space-y-3">
+            {% for c in ip_categories %}
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">{{ c.category|default:"(未分类)" }}</span>
+                <div class="flex items-center gap-2">
+                    <div class="w-32 bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ c.pct }}%"></div>
+                    </div>
+                    <span class="text-sm text-gray-500 w-8 text-right">{{ c.count }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">暂无数据</p>
+        {% endif %}
+    </div>
+
+    <!-- IP 来源分布 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">IP 来源分布</h3>
+        {% if ip_sources %}
+        <div class="space-y-3">
+            {% for s in ip_sources %}
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">{{ s.source|default:"(未知)" }}</span>
+                <span class="text-sm text-gray-500">{{ s.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">暂无数据</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- 近期新增 IP -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">近期新增 IP</h3>
+        {% if recent_ips %}
+        <div class="space-y-2">
+            {% for ip in recent_ips %}
+            <div class="flex justify-between text-sm">
+                <span class="font-mono text-gray-900">
+                    {% if ip.ip_address %}{{ ip.ip_address }}{% elif ip.cidr %}{{ ip.cidr }}{% elif ip.range_start and ip.range_end %}{{ ip.range_start }}-{{ ip.range_end }}{% endif %}
+                </span>
+                <span class="text-gray-400">{{ ip.created_at|date:"m-d H:i" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">暂无数据</p>
+        {% endif %}
+    </div>
+
+    <!-- 近期新增域名 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">近期新增域名</h3>
+        {% if recent_domains %}
+        <div class="space-y-2">
+            {% for d in recent_domains %}
+            <div class="flex justify-between text-sm">
+                <span class="font-mono text-gray-900">{% if d.prefix_at %}@{% endif %}{{ d.domain }}</span>
+                <span class="text-gray-400">{{ d.created_at|date:"m-d H:i" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">暂无数据</p>
+        {% endif %}
+    </div>
+
+    <!-- 资产设备类型分布 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">资产设备类型分布</h3>
+        {% if device_types %}
+        <div class="space-y-3">
+            {% for dt in device_types %}
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">{{ dt.device_type }}</span>
+                <span class="text-sm text-gray-500">{{ dt.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-400">暂无数据</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
